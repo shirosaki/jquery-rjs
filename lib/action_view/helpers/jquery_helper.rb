@@ -126,20 +126,13 @@ module ActionView
           update << "'#{options[:update]}'"
         end
 
-        function = update.empty? ?
-          "new Ajax.Request(" :
-          "new Ajax.Updater(#{update}, "
-
-        url_options = options[:url]
-        function << "'#{ERB::Util.html_escape(escape_javascript(url_for(url_options)))}'"
-        function << ", #{javascript_options})"
+        function = "#{JQUERY_VAR}.ajax(#{javascript_options})"
 
         function = "#{options[:before]}; #{function}" if options[:before]
         function = "#{function}; #{options[:after]}"  if options[:after]
         function = "if (#{options[:condition]}) { #{function}; }" if options[:condition]
         function = "if (confirm('#{escape_javascript(options[:confirm])}')) { #{function}; }" if options[:confirm]
-
-        return function.html_safe
+        return function
       end
 
       # All the methods were moved to GeneratorMethods so that
