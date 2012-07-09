@@ -214,7 +214,7 @@ module ActionView
           options[:onUpdate] ||= "function(){" + remote_function(options) + "}"
         end
         
-        options.delete_if { |key, value| PrototypeHelper::AJAX_OPTIONS.include?(key) }
+        options.delete_if { |key, value| JqueryHelper::AJAX_OPTIONS.include?(key) }
         options[:update] = options.delete(:onUpdate) if options[:onUpdate]
         
         [:axis, :cancel, :containment, :cursor, :handle, :tolerance, :items, :placeholder].each do |option|
