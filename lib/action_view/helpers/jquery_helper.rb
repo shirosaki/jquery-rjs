@@ -633,11 +633,11 @@ module ActionView
           js_options['dataType'] = options[:datatype] ? "'#{options[:datatype]}'" : (options[:update] ? nil : "'script'")
 
           if options[:form]
-            js_options['data'] = "#{JQUERY_VAR}.param(#{JQUERY_VAR}(this).serializeArray())"
+            js_options['data'] = "$.param($(this).serializeArray())"
           elsif options[:submit]
-            js_options['data'] = "#{JQUERY_VAR}(\"##{options[:submit]} :input\").serialize()"
+            js_options['data'] = "i$(\"##{options[:submit]} :input\").serialize()"
           elsif options[:with]
-            js_options['data'] = options[:with].gsub("Form.serialize(this.form)","#{JQUERY_VAR}.param(#{JQUERY_VAR}(this.form).serializeArray())")
+            js_options['data'] = options[:with].gsub("Form.serialize(this.form)","i$.param(i$(this.form).serializeArray())")
           end
 
           js_options['type'] ||= "'post'"
