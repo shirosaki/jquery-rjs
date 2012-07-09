@@ -623,29 +623,44 @@ module ActionView
         def options_for_ajax(options)
           js_options = build_callbacks(options)
 
-          js_options['asynchronous'] = options[:type] != :synchronous
-          js_options['method']       = method_option_to_s(options[:method]) if options[:method]
-          js_options['insertion']    = "'#{options[:position].to_s.downcase}'" if options[:position]
-          js_options['evalScripts']  = options[:script].nil? || options[:script]
+          url_options = options[:url]
+          url_options = url_options.merge(:escape => false) if url_options.is_a?(Hash)
+          js_options['url'] = "'#{url_for(url_options)}'"
+          js_options['async'] = false if options[:type] == :synchronous
+          js_options['type'] = options[:method] ? method_option_to_s(options[:method]) : ( options[:form] ? "'post'" : nil )
+          js_options['dataType'] = options[:datatype] ? "'#{options[:datatype]}'" : (options[:update] ? nil : "'script'")
 
           if options[:form]
-            js_options['parameters'] = 'Form.serialize(this)'
+            js_options['data'] = "#{JQUERY_VAR}.param(#{JQUERY_VAR}(this).serializeArray())"
           elsif options[:submit]
-            js_options['parameters'] = "Form.serialize('#{options[:submit]}')"
+            js_options['data'] = "#{JQUERY_VAR}(\"##{options[:submit]} :input\").serialize()"
           elsif options[:with]
-            js_options['parameters'] = options[:with]
+            js_options['data'] = options[:with].gsub("Form.serialize(this.form)","#{JQUERY_VAR}.param(#{JQUERY_VAR}(this.form).serializeArray())")
           end
 
-          if protect_against_forgery? && !options[:form]
-            if js_options['parameters']
-              js_options['parameters'] << " + '&"
-            else
-              js_options['parameters'] = "'"
+          js_options['type'] ||= "'post'"
+          if options[:method]
+            if method_option_to_s(options[:method]) == "'put'" || method_option_to_s(options[:method]) == "'delete'"
+              js_options['type'] = "'post'"
+              if js_options['data']
+                js_options['data'] << " + '&"
+              else
+                js_options['data'] = "'"
+              end
+              js_options['data'] << "_method=#{options[:method]}'"
             end
-            js_options['parameters'] << "#{request_forgery_protection_token}=' + encodeURIComponent('#{escape_javascript form_authenticity_token}')"
           end
 
-          options_for_javascript(js_options)
+          if USE_PROTECTION && respond_to?('protect_against_forgery?') && protect_against_forgery?
+            if js_options['data']
+              js_options['data'] << " + '&"
+            else
+              js_options['data'] = "'"
+            end
+            js_options['data'] << "#{request_forgery_protection_token}=' + encodeURIComponent('#{escape_javascript form_authenticity_token}')"
+          end
+          js_options['data'] = "''" if js_options['type'] == "'post'" && js_options['data'].nil?
+          options_for_javascript(js_options.reject {|key, value| value.nil?})
         end
 
         def method_option_to_s(method)
