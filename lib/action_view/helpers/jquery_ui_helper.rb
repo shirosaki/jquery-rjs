@@ -178,18 +178,52 @@ module ActionView
       end
 
       def sortable_element_js(element_id, options = {}) #:nodoc:
-        options[:with]     ||= "Sortable.serialize(#{ActiveSupport::JSON.encode(element_id)})"
-        options[:onUpdate] ||= "function(){" + remote_function(options) + "}"
-        options.delete_if { |key, value| JqueryHelper::AJAX_OPTIONS.include?(key) }
-
-        [:tag, :overlap, :constraint, :handle].each do |option|
+        #convert similar attributes
+        options[:handle] = ".#{options[:handle]}" if options[:handle]
+        if options[:tag] || options[:only]
+          options[:items] = "> "
+          options[:items] << options.delete(:tag) if options[:tag]
+          options[:items] << ".#{options.delete(:only)}" if options[:only]
+        end
+        options[:connectWith] = options.delete(:containment).map {|x| "##{x}"} if options[:containment]
+        options[:containment] = options.delete(:container) if options[:container]
+        options[:dropOnEmpty] = false unless options[:dropOnEmpty]
+        options[:helper] = "'clone'" if options[:ghosting] == true
+        options[:axis] = case options.delete(:constraint)
+          when "vertical", :vertical
+            "y"
+          when "horizontal", :horizontal
+            "x"
+          when false
+            nil
+          when nil
+            "y"
+        end
+        options.delete(:axis) if options[:axis].nil?
+        options.delete(:overlap)
+        options.delete(:ghosting)
+        
+        if options[:onUpdate] || options[:url]
+          if options[:format]
+            options[:with] ||= "#{JQUERY_VAR}(this).sortable('serialize',{key:'#{element_id}[]', expression:#{options[:format]}})"
+            options.delete(:format)
+          else
+            options[:with] ||= "#{JQUERY_VAR}(this).sortable('serialize',{key:'#{element_id}[]'})"
+          end
+          
+          options[:onUpdate] ||= "function(){" + remote_function(options) + "}"
+        end
+        
+        options.delete_if { |key, value| PrototypeHelper::AJAX_OPTIONS.include?(key) }
+        options[:update] = options.delete(:onUpdate) if options[:onUpdate]
+        
+        [:axis, :cancel, :containment, :cursor, :handle, :tolerance, :items, :placeholder].each do |option|
           options[option] = "'#{options[option]}'" if options[option]
         end
-
-        options[:containment] = array_or_string_for_javascript(options[:containment]) if options[:containment]
-        options[:only] = array_or_string_for_javascript(options[:only]) if options[:only]
-
-        %(Sortable.create(#{ActiveSupport::JSON.encode(element_id)}, #{options_for_javascript(options)});)
+        
+        options[:connectWith] = array_or_string_for_javascript(options[:connectWith]) if options[:connectWith]
+        
+        %(#{JQUERY_VAR}('#{jquery_id(element_id)}').sortable(#{options_for_javascript(options)});)
       end
 
       # Makes the element with the DOM ID specified by +element_id+ draggable.
