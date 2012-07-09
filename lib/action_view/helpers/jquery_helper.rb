@@ -126,13 +126,13 @@ module ActionView
           update << "'#{options[:update]}'"
         end
 
-        function = "#{JQUERY_VAR}.ajax(#{javascript_options})"
+        function = "$.ajax(#{javascript_options})"
 
         function = "#{options[:before]}; #{function}" if options[:before]
         function = "#{function}; #{options[:after]}"  if options[:after]
         function = "if (#{options[:condition]}) { #{function}; }" if options[:condition]
         function = "if (confirm('#{escape_javascript(options[:confirm])}')) { #{function}; }" if options[:confirm]
-        return function
+        return function.html_safe
       end
 
       # All the methods were moved to GeneratorMethods so that
