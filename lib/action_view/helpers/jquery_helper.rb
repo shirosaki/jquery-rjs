@@ -671,10 +671,29 @@ module ActionView
 
         def build_callbacks(options)
           callbacks = {}
+          options[:beforeSend] = '';
+          [:uninitialized,:loading].each do |key|
+            options[:beforeSend] << (options[key].last == ';' ? options.delete(key) : options.delete(key) << ';') if options[key]
+          end
+          options.delete(:beforeSend) if options[:beforeSend].blank?
+          options[:complete] = options.delete(:loaded) if options[:loaded] 
+          options[:error] = options.delete(:failure) if options[:failure]
+          if options[:update]
+            if options[:update].is_a?(Hash)
+              options[:update][:error] = options[:update].delete(:failure) if options[:update][:failure]
+              if options[:update][:success]
+                options[:success] = build_update_for_success(options[:update][:success], options[:position]) << (options[:success] ? options[:success] : '')
+              end
+              if options[:update][:error]
+                options[:error] = build_update_for_error(options[:update][:error], options[:position]) << (options[:error] ? options[:error] : '')
+              end
+            else
+              options[:success] = build_update_for_success(options[:update], options[:position]) << (options[:success] ? options[:success] : '')
+            end
+          end
           options.each do |callback, code|
-            if CALLBACKS.include?(callback)
-              name = 'on' + callback.to_s.capitalize
-              callbacks[name] = "function(request){#{code}}"
+            if JQCALLBACKS.include?(callback)
+              callbacks[callback] = "function(request){#{code}}"
             end
           end
           callbacks
