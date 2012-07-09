@@ -95,6 +95,8 @@ module ActionView
     # See JavaScriptGenerator for information on updating multiple elements
     # on the page in an Ajax response.
     module JqueryHelper
+      USE_PROTECTION = const_defined?(:DISABLE_JQUERY_FORGERY_PROTECTION) ? !DISABLE_JQUERY_FORGERY_PROTECTION : true
+
       CALLBACKS    = Set.new([ :create, :uninitialized, :loading, :loaded,
                        :interactive, :complete, :failure, :success ] +
                        (100..599).to_a)
