@@ -666,6 +666,23 @@ module ActionView
           js_options['data'] = "''" if js_options['type'] == "'post'" && js_options['data'].nil?
           options_for_javascript(js_options.reject {|key, value| value.nil?})
         end
+      
+        def build_update_for_success(html_id, insertion=nil)
+          insertion = build_insertion(insertion)
+          "#{JQUERY_VAR}('#{jquery_id(html_id)}').#{insertion}(request);"
+        end
+
+        def build_update_for_error(html_id, insertion=nil)
+          insertion = build_insertion(insertion)
+          "#{JQUERY_VAR}('#{jquery_id(html_id)}').#{insertion}(request.responseText);"
+        end
+
+        def build_insertion(insertion)
+          insertion = insertion ? insertion.to_s.downcase : 'html'
+          insertion = 'append' if insertion == 'bottom'
+          insertion = 'prepend' if insertion == 'top'
+          insertion
+        end
 
         def method_option_to_s(method)
           (method.is_a?(String) and !method.index("'").nil?) ? method : "'#{method}'"
