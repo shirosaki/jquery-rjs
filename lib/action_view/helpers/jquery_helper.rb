@@ -97,12 +97,14 @@ module ActionView
     module JqueryHelper
       USE_PROTECTION = const_defined?(:DISABLE_JQUERY_FORGERY_PROTECTION) ? !DISABLE_JQUERY_FORGERY_PROTECTION : true
 
-      CALLBACKS    = Set.new([ :create, :uninitialized, :loading, :loaded,
-                       :interactive, :complete, :failure, :success ] +
-                       (100..599).to_a)
-      AJAX_OPTIONS = Set.new([ :before, :after, :condition, :url,
-                       :asynchronous, :method, :insertion, :position,
-                       :form, :with, :update, :script, :type ]).merge(CALLBACKS)
+      unless const_defined? :JQCALLBACKS
+        JQCALLBACKS = Set.new([ :beforeSend, :complete, :error, :success ] + (100..599).to_a)
+        #instance_eval { remove_const :AJAX_OPTIONS }
+        remove_const(:AJAX_OPTIONS) if const_defined?(:AJAX_OPTIONS)
+        AJAX_OPTIONS = Set.new([ :before, :after, :condition, :url,
+                         :asynchronous, :method, :insertion, :position,
+                         :form, :with, :update, :script ]).merge(JQCALLBACKS)
+      end
 
       # Returns the JavaScript needed for a remote function.
       # See the link_to_remote documentation at https://github.com/rails/prototype_legacy_helper as it takes the same arguments.
