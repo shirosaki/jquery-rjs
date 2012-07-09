@@ -97,6 +97,10 @@ module ActionView
     module JqueryHelper
       USE_PROTECTION = const_defined?(:DISABLE_JQUERY_FORGERY_PROTECTION) ? !DISABLE_JQUERY_FORGERY_PROTECTION : true
 
+      unless const_defined? :JQUERY_VAR
+        JQUERY_VAR = 'jQuery'
+      end
+
       unless const_defined? :JQCALLBACKS
         JQCALLBACKS = Set.new([ :beforeSend, :complete, :error, :success ] + (100..599).to_a)
         #instance_eval { remove_const :AJAX_OPTIONS }
