@@ -1,5 +1,9 @@
 require 'active_support/core_ext/module/aliasing'
-require 'action_controller/vendor/html-scanner'
+if Rails::VERSION::MAJOR >= 4
+  require 'action_view/vendor/html-scanner'
+else
+  require 'action_controller/vendor/html-scanner'
+end
 require 'action_dispatch/testing/assertions'
 require 'action_dispatch/testing/assertions/selector'
 
