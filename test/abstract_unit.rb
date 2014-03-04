@@ -3,14 +3,9 @@ $:.unshift(lib) unless $:.include?('lib') || $:.include?(lib)
 
 $:.unshift(File.dirname(__FILE__) + '/lib')
 
-if defined? Gem
-  Gem.source_index
-  gem 'bundler'
-else
-  require 'rubygems'
-end
 require 'bundler'
 Bundler.setup
+Bundler.require
 
 require 'test/unit'
 require 'active_support'
