@@ -54,11 +54,11 @@ module ActiveSupport
     # have been loaded.
     setup_once do
       SharedTestRoutes.draw do
-        match ':controller(/:action)'
+        match ':controller(/:action)', :via => :any
       end
 
       ActionDispatch::IntegrationTest.app.routes.draw do
-        match ':controller(/:action)'
+        match ':controller(/:action)', :via => :any
       end
     end
   end
