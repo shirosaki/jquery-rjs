@@ -548,7 +548,7 @@ module ActionView
             end
 
             def record(line)
-              line = "#{line.to_s.chomp.gsub(/\;\z/, '')};"
+              line = "#{line.to_s.chomp.gsub(/\;\z/, '')};".html_safe
               self << line
               line
             end
@@ -728,7 +728,7 @@ module ActionView
 
       def initialize(generator, root = nil)
         @generator = generator
-        @generator << root if root
+        @generator << root.html_safe if root
       end
 
       def is_a?(klass)
@@ -767,7 +767,7 @@ module ActionView
       def initialize(generator, id)
         id = id.to_s.count('#.*,>+~:[/ ') == 0 ? "##{id}" : id
         @id = id
-        super(generator, "$(#{::ActiveSupport::JSON.encode(id)})")
+        super(generator, "$(#{::ActiveSupport::JSON.encode(id)})".html_safe)
       end
 
       # Allows access of element attributes through +attribute+. Examples:
