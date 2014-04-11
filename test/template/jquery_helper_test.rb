@@ -77,6 +77,8 @@ class JqueryHelperBaseTest < ActionView::TestCase
 end
 
 class JqueryHelperTest < JqueryHelperBaseTest
+  tests ActionView::Helpers::JqueryHelper
+
   def _evaluate_assigns_and_ivars() end
 
   def setup
