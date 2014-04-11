@@ -36,7 +36,7 @@ end
 class Author::Nested < Author; end
 
 
-class PrototypeHelperBaseTest < ActionView::TestCase
+class JqueryHelperBaseTest < ActionView::TestCase
   attr_accessor :formats, :output_buffer
 
   def update_details(details)
@@ -76,7 +76,7 @@ class PrototypeHelperBaseTest < ActionView::TestCase
     end
 end
 
-class PrototypeHelperTest < PrototypeHelperBaseTest
+class JqueryHelperTest < JqueryHelperBaseTest
   def _evaluate_assigns_and_ivars() end
 
   def setup
@@ -128,7 +128,7 @@ class PrototypeHelperTest < PrototypeHelperBaseTest
     end
 end
 
-class JavaScriptGeneratorTest < PrototypeHelperBaseTest
+class JavaScriptGeneratorTest < JqueryHelperBaseTest
   def setup
     super
     @generator = create_generator
