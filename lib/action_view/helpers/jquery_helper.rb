@@ -541,6 +541,11 @@ module ActionView
             record "}, #{(seconds * 1000).to_i})"
           end
 
+          def arguments_for_call(arguments, block = nil)
+            arguments << block_to_function(block) if block
+            arguments.map { |argument| javascript_object_for(argument) }.join ', '
+          end
+
           private
             def loop_on_multiple_args(method, ids)
               record(ids.size>1 ?
@@ -583,11 +588,6 @@ module ActionView
 
             def javascript_object_for(object)
               ::ActiveSupport::JSON.encode(object)
-            end
-
-            def arguments_for_call(arguments, block = nil)
-              arguments << block_to_function(block) if block
-              arguments.map { |argument| javascript_object_for(argument) }.join ', '
             end
 
             def block_to_function(block)
