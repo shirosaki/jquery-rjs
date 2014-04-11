@@ -73,7 +73,7 @@ module ActionView
       # You can change the behaviour with various options, see
       # http://script.aculo.us for more documentation.
       def visual_effect(name, element_id = false, js_options = {})
-        element = element_id ? ActiveSupport::JSON.encode(jquery_id(element_id)) : "this"
+        element = element_id ? ActiveSupport::JSON.encode(jquery_id((JavaScriptVariableProxy === element_id) ? element_id.as_json : element_id)) : "this"
 
         if SCRIPTACULOUS_EFFECTS.has_key? name.to_sym
           effect = SCRIPTACULOUS_EFFECTS[name.to_sym]
