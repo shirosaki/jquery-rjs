@@ -146,8 +146,13 @@ module ActionView
       # All the methods were moved to GeneratorMethods so that
       # #include_helpers_from_context has nothing to overwrite.
       class JavaScriptGenerator #:nodoc:
+        class OutputBuffer < Array
+          def encoding
+            Encoding::UTF_8
+          end
+        end
         def initialize(context, &block) #:nodoc:
-          @context, @lines = context, []
+          @context, @lines = context, OutputBuffer.new
           include_helpers_from_context
           @context.with_output_buffer(@lines) do
             @context.instance_exec(self, &block)
