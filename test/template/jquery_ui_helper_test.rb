@@ -1,7 +1,7 @@
 require 'abstract_unit'
 
 class JqueryUiHelperTest < ActionView::TestCase
-  tests ActionView::Helpers::JqueryUiHelper
+  tests ActionView::Helpers::JqueryUiHelper.send(:include, ActionView::Helpers::JqueryHelper)
 
   def url_for(options)
     url =  "http://www.example.com/"
