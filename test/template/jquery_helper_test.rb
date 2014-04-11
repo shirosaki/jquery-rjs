@@ -325,7 +325,7 @@ $("p.welcome b").each(function(value, index) {
 value.removeClassName("selected");
 });
 $("p.welcome b").each(function(value, index) {
-new Effect.Highlight(value,{});
+$("#value").effect("highlight",{});
 });
       EOS
   end
