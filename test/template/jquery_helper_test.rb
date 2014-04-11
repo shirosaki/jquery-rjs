@@ -131,6 +131,8 @@ class JqueryHelperTest < JqueryHelperBaseTest
 end
 
 class JavaScriptGeneratorTest < JqueryHelperBaseTest
+  tests ActionView::Helpers::JqueryUiHelper.send(:include, ActionView::Helpers::JqueryHelper)
+
   def setup
     super
     @generator = create_generator
