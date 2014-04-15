@@ -2,7 +2,7 @@ require 'rails'
 require 'active_support'
 
 unless defined? JQUERY_VAR
-  JQUERY_VAR = 'jQuery'
+  JQUERY_VAR = '$'
 end
 
 module JqueryRjs
