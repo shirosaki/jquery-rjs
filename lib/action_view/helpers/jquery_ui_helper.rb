@@ -194,10 +194,8 @@ module ActionView
             "y"
           when "horizontal", :horizontal
             "x"
-          when false
+          else
             nil
-          when nil
-            "y"
         end
         options.delete(:axis) if options[:axis].nil?
         options.delete(:overlap)
