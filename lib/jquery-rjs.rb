@@ -1,6 +1,10 @@
 require 'rails'
 require 'active_support'
 
+unless defined? JQUERY_VAR
+  JQUERY_VAR = 'jQuery'
+end
+
 module JqueryRjs
   class Engine < Rails::Engine
     initializer 'jquery-rjs.initialize' do

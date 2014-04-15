@@ -97,7 +97,7 @@ module ActionView
         #if ['fadeIn','fadeOut','fadeToggle'].include?(name)
         #  "$(\"#{jquery_id(element_id)}\").#{name}();"
         #else
-          "$(#{element}).#{mode || "effect"}(\"#{name}\",#{options_for_javascript(js_options)});"
+          "#{JQUERY_VAR}(#{element}).#{mode || "effect"}(\"#{name}\",#{options_for_javascript(js_options)});"
         #end
 
       end
@@ -205,10 +205,10 @@ module ActionView
         
         if options[:onUpdate] || options[:url]
           if options[:format]
-            options[:with] ||= "$(this).sortable('serialize',{key:'#{element_id}[]', expression:#{options[:format]}})"
+            options[:with] ||= "#{JQUERY_VAR}(this).sortable('serialize',{key:'#{element_id}[]', expression:#{options[:format]}})"
             options.delete(:format)
           else
-            options[:with] ||= "$(this).sortable('serialize',{key:'#{element_id}[]'})"
+            options[:with] ||= "#{JQUERY_VAR}(this).sortable('serialize',{key:'#{element_id}[]'})"
           end
           
           options[:onUpdate] ||= "function(){" + remote_function(options) + "}"
@@ -223,7 +223,7 @@ module ActionView
         
         options[:connectWith] = array_or_string_for_javascript(options[:connectWith]) if options[:connectWith]
         
-        %($('#{jquery_id(element_id)}').sortable(#{options_for_javascript(options)});)
+        %(#{JQUERY_VAR}('#{jquery_id(element_id)}').sortable(#{options_for_javascript(options)});)
       end
 
       # Makes the element with the DOM ID specified by +element_id+ draggable.

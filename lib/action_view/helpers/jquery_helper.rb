@@ -97,10 +97,6 @@ module ActionView
     module JqueryHelper
       USE_PROTECTION = const_defined?(:DISABLE_JQUERY_FORGERY_PROTECTION) ? !DISABLE_JQUERY_FORGERY_PROTECTION : true
 
-      unless const_defined? :JQUERY_VAR
-        JQUERY_VAR = 'jQuery'
-      end
-
       unless const_defined? :JQCALLBACKS
         JQCALLBACKS = Set.new([ :beforeSend, :complete, :error, :success ] + (100..599).to_a)
         #instance_eval { remove_const :AJAX_OPTIONS }
@@ -134,7 +130,7 @@ module ActionView
           update << "'#{options[:update]}'"
         end
 
-        function = "$.ajax(#{javascript_options})"
+        function = "#{JQUERY_VAR}.ajax(#{javascript_options})"
 
         function = "#{options[:before]}; #{function}" if options[:before]
         function = "#{function}; #{options[:after]}"  if options[:after]
@@ -331,7 +327,7 @@ module ActionView
             insertion = position.to_s.downcase
             insertion = 'append' if insertion == 'bottom'
             insertion = 'prepend' if insertion == 'top'
-            call "$(\"#{jquery_id(id)}\").#{insertion}", render(*options_for_render)
+            call "#{JQUERY_VAR}(\"#{jquery_id(id)}\").#{insertion}", render(*options_for_render)
             # content = javascript_object_for(render(*options_for_render))
             # record "Element.insert(\"#{id}\", { #{position.to_s.downcase}: #{content} });"
           end
@@ -347,7 +343,7 @@ module ActionView
           #   page.replace_html 'person-45', :partial => 'person', :object => @person
           #
           def replace_html(id, *options_for_render)
-            call "$(\"#{jquery_id(id)}\").html", render(*options_for_render)
+            call "#{JQUERY_VAR}(\"#{jquery_id(id)}\").html", render(*options_for_render)
             # call 'Element.update', id, render(*options_for_render)
           end
 
@@ -382,7 +378,7 @@ module ActionView
           #   page.replace 'person_45', :partial => 'person', :object => @person
           #
           def replace(id, *options_for_render)
-            call "$(\"#{jquery_id(id)}\").replaceWith", render(*options_for_render)
+            call "#{JQUERY_VAR}(\"#{jquery_id(id)}\").replaceWith", render(*options_for_render)
             #call 'Element.replace', id, render(*options_for_render)
           end
 
@@ -395,7 +391,7 @@ module ActionView
           #  page.remove 'person_23', 'person_9', 'person_2'
           #
           def remove(*ids)
-            call "$(\"#{jquery_ids(ids)}\").remove"
+            call "#{JQUERY_VAR}(\"#{jquery_ids(ids)}\").remove"
             #loop_on_multiple_args 'Element.remove', ids
           end
 
@@ -408,7 +404,7 @@ module ActionView
           #  page.show 'person_6', 'person_13', 'person_223'
           #
           def show(*ids)
-            call "$(\"#{jquery_ids(ids)}\").show"
+            call "#{JQUERY_VAR}(\"#{jquery_ids(ids)}\").show"
             #loop_on_multiple_args 'Element.show', ids
           end
 
@@ -421,7 +417,7 @@ module ActionView
           #  page.hide 'person_29', 'person_9', 'person_0'
           #
           def hide(*ids)
-            call "$(\"#{jquery_ids(ids)}\").hide"
+            call "#{JQUERY_VAR}(\"#{jquery_ids(ids)}\").hide"
             #loop_on_multiple_args 'Element.hide', ids
           end
 
@@ -434,7 +430,7 @@ module ActionView
           #  page.toggle 'person_14', 'person_12', 'person_23'      # Shows the previously hidden elements
           #
           def toggle(*ids)
-            call "$(\"#{jquery_ids(ids)}\").toggle"
+            call "#{JQUERY_VAR}(\"#{jquery_ids(ids)}\").toggle"
             #loop_on_multiple_args 'Element.toggle', ids
           end
 
@@ -644,11 +640,11 @@ module ActionView
           js_options['dataType'] = options[:datatype] ? "'#{options[:datatype]}'" : (options[:update] ? nil : "'script'")
 
           if options[:form]
-            js_options['data'] = "$.param($(this).serializeArray())"
+            js_options['data'] = "#{JQUERY_VAR}.param(#{JQUERY_VAR}(this).serializeArray())"
           elsif options[:submit]
-            js_options['data'] = "i$(\"##{options[:submit]} :input\").serialize()"
+            js_options['data'] = "#{JQUERY_VAR}(\"##{options[:submit]} :input\").serialize()"
           elsif options[:with]
-            js_options['data'] = options[:with].gsub("Form.serialize(this.form)","i$.param(i$(this.form).serializeArray())")
+            js_options['data'] = options[:with].gsub("Form.serialize(this.form)","#{JQUERY_VAR}.param(#{JQUERY_VAR}(this.form).serializeArray())")
           end
 
           js_options['type'] ||= "'post'"
@@ -772,7 +768,7 @@ module ActionView
       def initialize(generator, id)
         id = id.to_s.count('#.*,>+~:[/ ') == 0 ? "##{id}" : id
         @id = id
-        super(generator, "$(#{::ActiveSupport::JSON.encode(id)})".html_safe)
+        super(generator, "#{JQUERY_VAR}(#{::ActiveSupport::JSON.encode(id)})".html_safe)
       end
 
       # Allows access of element attributes through +attribute+. Examples:
@@ -937,7 +933,7 @@ module ActionView
 
     class JavaScriptElementCollectionProxy < JavaScriptCollectionProxy #:nodoc:\
       def initialize(generator, pattern)
-        super(generator, "$(#{::ActiveSupport::JSON.encode(pattern)})")
+        super(generator, "#{JQUERY_VAR}(#{::ActiveSupport::JSON.encode(pattern)})")
       end
     end
   end
