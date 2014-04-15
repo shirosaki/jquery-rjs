@@ -768,7 +768,7 @@ module ActionView
       def initialize(generator, id)
         id = id.to_s.count('#.*,>+~:[/ ') == 0 ? "##{id}" : id
         @id = id
-        super(generator, "#{JQUERY_VAR}(#{::ActiveSupport::JSON.encode(id)})".html_safe)
+        super(generator, "#{::JQUERY_VAR}(#{::ActiveSupport::JSON.encode(id)})".html_safe)
       end
 
       # Allows access of element attributes through +attribute+. Examples:
@@ -933,7 +933,7 @@ module ActionView
 
     class JavaScriptElementCollectionProxy < JavaScriptCollectionProxy #:nodoc:\
       def initialize(generator, pattern)
-        super(generator, "#{JQUERY_VAR}(#{::ActiveSupport::JSON.encode(pattern)})")
+        super(generator, "#{::JQUERY_VAR}(#{::ActiveSupport::JSON.encode(pattern)})")
       end
     end
   end
