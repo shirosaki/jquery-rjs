@@ -1,6 +1,10 @@
 require 'active_support/core_ext/module/aliasing'
 if Rails::VERSION::MAJOR >= 4
-  require 'action_view/vendor/html-scanner'
+  if (Rails::VERSION::MAJOR >= 5) || (Rails::VERSION::MINOR >= 2)
+    require 'rails-html-sanitizer'
+  else
+    require 'action_view/vendor/html-scanner'
+  end
 else
   require 'action_controller/vendor/html-scanner'
 end
