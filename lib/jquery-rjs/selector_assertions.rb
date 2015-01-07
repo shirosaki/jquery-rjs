@@ -2,21 +2,25 @@ require 'active_support/core_ext/module/aliasing'
 if Rails::VERSION::MAJOR >= 4
   if (Rails::VERSION::MAJOR >= 5) || (Rails::VERSION::MINOR >= 2)
     require 'rails-html-sanitizer'
+    require 'rails/dom/testing/assertions'
+    require 'rails/dom/testing/assertions/selector_assertions'
   else
     require 'action_view/vendor/html-scanner'
+    require 'action_dispatch/testing/assertions'
+    require 'action_dispatch/testing/assertions/selector'
   end
 else
   require 'action_controller/vendor/html-scanner'
+  require 'action_dispatch/testing/assertions'
+  require 'action_dispatch/testing/assertions/selector'
 end
-require 'action_dispatch/testing/assertions'
-require 'action_dispatch/testing/assertions/selector'
 
 #--
 # Copyright (c) 2006 Assaf Arkin (http://labnotes.org)
 # Under MIT and/or CC By license.
 #++
 
-ActionDispatch::Assertions::SelectorAssertions.module_eval do
+(defined?(ActionDispatch::Assertions::SelectorAssertions) ? ActionDispatch::Assertions::SelectorAssertions : Rails::Dom::Testing::Assertions::SelectorAssertions).module_eval do
   # Selects content from the RJS response.
   #
   # === Narrowing down
