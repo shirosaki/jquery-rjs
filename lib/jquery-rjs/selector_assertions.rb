@@ -189,6 +189,12 @@ end
   RJS_STATEMENTS[:any] = Regexp.new("(#{RJS_STATEMENTS.values.join('|')})")
   RJS_PATTERN_UNICODE_ESCAPED_CHAR = /\\u([0-9a-zA-Z]{4})/
 
+  unless method_defined? :response_from_page  # >= 4.2
+    def response_from_page
+      document_root_element
+    end
+  end
+
   # +assert_select+ and +css_select+ call this to obtain the content in the HTML
   # page, or from all the RJS statements, depending on the type of response.
   def response_from_page_with_rjs
