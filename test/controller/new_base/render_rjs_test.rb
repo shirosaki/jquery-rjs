@@ -36,6 +36,7 @@ module RenderRjs
     testing BasicController
 
     def setup
+      I18n.available_locales = [:en, :da]
       @old_locale = I18n.locale
     end
 

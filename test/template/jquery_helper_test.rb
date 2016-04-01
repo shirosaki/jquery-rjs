@@ -107,8 +107,8 @@ class JqueryHelperTest < JqueryHelperBaseTest
   end
 
   def test_remote_function
-    res = remote_function(:url => authors_path, :with => "'author[name]='+$F('author_name')+'&author[dob]='+$F('author_dob')")
-    assert_equal "new Ajax.Request('/authors', {asynchronous:true, evalScripts:true, parameters:'author[name]='+$F('author_name')+'&author[dob]='+$F('author_dob')})", res
+    res = remote_function(:url => authors_path, :with => "'author[name]='+$('#author_name')+'&author[dob]='+$('#author_dob')")
+    assert_equal "$.ajax({data:'author[name]='+$('#author_name')+'&author[dob]='+$('#author_dob'), dataType:'script', type:'post', url:'/authors'})", res
     assert res.html_safe?
   end
 
@@ -146,23 +146,23 @@ class JavaScriptGeneratorTest < JqueryHelperBaseTest
   def _evaluate_assigns_and_ivars() end
 
   def test_insert_html_with_string
-    assert_equal '$("#element").prepend("\\u003Cp\\u003EThis is a test\\u003C/p\\u003E");',
+    assert_equal '$("#element").prepend("\\u003cp\\u003eThis is a test\\u003c/p\\u003e");',
       @generator.insert_html(:top, 'element', '<p>This is a test</p>')
-    assert_equal '$("#element").append("\\u003Cp\u003EThis is a test\\u003C/p\u003E");',
+    assert_equal '$("#element").append("\\u003cp\u003eThis is a test\\u003c/p\u003e");',
       @generator.insert_html(:bottom, 'element', '<p>This is a test</p>')
-    assert_equal '$("#element").before("\\u003Cp\u003EThis is a test\\u003C/p\u003E");',
+    assert_equal '$("#element").before("\\u003cp\u003eThis is a test\\u003c/p\u003e");',
       @generator.insert_html(:before, 'element', '<p>This is a test</p>')
-    assert_equal '$("#element").after("\\u003Cp\u003EThis is a test\\u003C/p\u003E");',
+    assert_equal '$("#element").after("\\u003cp\u003eThis is a test\\u003c/p\u003e");',
       @generator.insert_html(:after, 'element', '<p>This is a test</p>')
   end
 
   def test_replace_html_with_string
-    assert_equal '$("#element").html("\\u003Cp\\u003EThis is a test\\u003C/p\\u003E");',
+    assert_equal '$("#element").html("\\u003cp\\u003eThis is a test\\u003c/p\\u003e");',
       @generator.replace_html('element', '<p>This is a test</p>')
   end
 
   def test_replace_element_with_string
-    assert_equal '$("#element").replaceWith("\\u003Cdiv id=\"element\"\\u003E\\u003Cp\\u003EThis is a test\\u003C/p\\u003E\\u003C/div\\u003E");',
+    assert_equal '$("#element").replaceWith("\\u003cdiv id=\"element\"\\u003e\\u003cp\\u003eThis is a test\\u003c/p\\u003e\\u003c/div\\u003e");',
       @generator.replace('element', '<div id="element"><p>This is a test</p></div>')
   end
 
@@ -225,10 +225,10 @@ class JavaScriptGeneratorTest < JqueryHelperBaseTest
     @generator.replace_html('baz', '<p>This is a test</p>')
 
     assert_equal <<-EOS.chomp, @generator.to_s
-$("#element").prepend("\\u003Cp\\u003EThis is a test\\u003C/p\\u003E");
-$("#element").append("\\u003Cp\\u003EThis is a test\\u003C/p\\u003E");
+$("#element").prepend("\\u003cp\\u003eThis is a test\\u003c/p\\u003e");
+$("#element").append("\\u003cp\\u003eThis is a test\\u003c/p\\u003e");
 $("#foo,#bar").remove();
-$("#baz").html("\\u003Cp\\u003EThis is a test\\u003C/p\\u003E");
+$("#baz").html("\\u003cp\\u003eThis is a test\\u003c/p\\u003e");
     EOS
   end
 
@@ -286,9 +286,9 @@ $("#baz").html("\\u003Cp\\u003EThis is a test\\u003C/p\\u003E");
   end
 
   def test_sortable
-    assert_equal %(Sortable.create("blah", {onUpdate:function(){new Ajax.Request('http://www.example.com/order', {asynchronous:true, evalScripts:true, parameters:Sortable.serialize("blah")})}});),
+    assert_equal %($("#blah").sortable({dropOnEmpty:false, update:function(){$.ajax({data:$(this).sortable('serialize',{key:"blah"}), dataType:'script', type:'post', url:'http://www.example.com/order'})}});),
       @generator.sortable('blah', :url => { :action => "order" })
-    assert_equal %(Sortable.create("blah", {onUpdate:function(){new Ajax.Request('http://www.example.com/order', {asynchronous:false, evalScripts:true, parameters:Sortable.serialize("blah")})}});),
+    assert_equal %($("#blah").sortable({dropOnEmpty:false, type:synchronous, update:function(){$.ajax({async:false, data:$(this).sortable('serialize',{key:"blah"}), dataType:'script', type:'post', url:'http://www.example.com/order'})}});),
       @generator.sortable('blah', :url => { :action => "order" }, :type => :synchronous)
   end
 
@@ -298,9 +298,9 @@ $("#baz").html("\\u003Cp\\u003EThis is a test\\u003C/p\\u003E");
   end
 
   def test_drop_receiving
-    assert_equal %(Droppables.add("blah", {onDrop:function(element){new Ajax.Request('http://www.example.com/order', {asynchronous:true, evalScripts:true, parameters:'id=' + encodeURIComponent(element.id)})}});),
+    assert_equal %(Droppables.add("blah", {onDrop:function(element){$.ajax({data:'id=' + encodeURIComponent(element.id), dataType:'script', type:'post', url:'http://www.example.com/order'})}});),
       @generator.drop_receiving('blah', :url => { :action => "order" })
-    assert_equal %(Droppables.add("blah", {onDrop:function(element){new Ajax.Request('http://www.example.com/order', {asynchronous:false, evalScripts:true, parameters:'id=' + encodeURIComponent(element.id)})}});),
+    assert_equal %(Droppables.add("blah", {onDrop:function(element){$.ajax({async:false, data:'id=' + encodeURIComponent(element.id), dataType:'script', type:'post', url:'http://www.example.com/order'})}, type:synchronous});),
       @generator.drop_receiving('blah', :url => { :action => "order" }, :type => :synchronous)
   end
 
@@ -325,7 +325,7 @@ $("p.welcome b").each(function(value, index) {
 value.removeClassName("selected");
 });
 $("p.welcome b").each(function(value, index) {
-$("#value").effect("highlight",{});
+$(value).effect("highlight",{});
 });
       EOS
   end
@@ -448,7 +448,7 @@ return value.reverse();
 
   def test_literal
     literal = @generator.literal("function() {}")
-    assert_equal "function() {}", ActiveSupport::JSON.encode(literal)
+    assert_equal "function() {}", literal
     assert_equal "", @generator.to_s
   end
 

@@ -39,12 +39,8 @@ class AssertSelectTest < ActionController::TestCase
     render_rjs do |page|
       page.replace_html "test", "<div id=\"1\">foo</div>\n<div id=\"2\">foo</div>"
     end
-    assert_select "div" do |elements|
+    assert_select_rjs do |elements|
       assert elements.size == 2
-      assert_select "#1"
-      assert_select "#2"
-    end
-    assert_select "div#?", /\d+/ do |elements|
       assert_select "#1"
       assert_select "#2"
     end
@@ -56,7 +52,7 @@ class AssertSelectTest < ActionController::TestCase
       page.replace_html "test", "<div id=\"1\">foo</div>"
       page.replace_html "test2", "<div id=\"2\">foo</div>"
     end
-    assert_select "div" do |elements|
+    assert_select_rjs do |elements|
       assert elements.size == 2
       assert_select "#1"
       assert_select "#2"
@@ -68,9 +64,11 @@ class AssertSelectTest < ActionController::TestCase
     render_rjs do |page|
       page.replace_html "test", "<div id=\"1\">foo</div>\n<div id=\"2\">foo</div>"
     end
-    assert_equal 2, css_select("div").size
-    assert_equal 1, css_select("#1").size
-    assert_equal 1, css_select("#2").size
+    assert_select_rjs do
+      assert_select "div", 2
+      assert_select "#1", 1
+      assert_select "#2", 1
+    end
   end
 
   # With multiple results.
@@ -80,9 +78,11 @@ class AssertSelectTest < ActionController::TestCase
       page.replace_html "test2", "<div id=\"2\">foo</div>"
     end
 
-    assert_equal 2, css_select("div").size
-    assert_equal 1, css_select("#1").size
-    assert_equal 1, css_select("#2").size
+    assert_select_rjs :replace_html do |t|
+      assert_select "div", 2
+      assert_select "#1", 1
+      assert_select "#2", 1
+    end
   end
 
   #
