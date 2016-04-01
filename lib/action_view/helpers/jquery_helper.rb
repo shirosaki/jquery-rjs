@@ -157,7 +157,12 @@ module ActionView
 
         private
           def include_helpers_from_context
-            extend @context.helpers if @context.respond_to?(:helpers) && @context.helpers
+            if @context.respond_to?(:helpers) && @context.helpers
+              extend @context.helpers
+            elsif @context.controller.respond_to?(:_helpers) && @context.controller._helpers
+              # Rails 4 doesn't have @context.helpers
+              extend @context.controller._helpers
+            end
             extend GeneratorMethods
           end
 
