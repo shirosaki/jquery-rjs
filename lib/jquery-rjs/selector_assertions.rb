@@ -1,7 +1,6 @@
 require 'active_support/core_ext/module/aliasing'
 if Rails::VERSION::MAJOR >= 4
   if (Rails::VERSION::MAJOR >= 5) || (Rails::VERSION::MINOR >= 2)
-    require 'rails-html-sanitizer'
     require 'rails/dom/testing/assertions'
     require 'rails/dom/testing/assertions/selector_assertions'
   else
@@ -128,9 +127,11 @@ end
         matches = @response.body.match(pattern)
       else
         @response.body.gsub(pattern) do |match|
+          matches ||= Nokogiri::XML::NodeSet.new(Nokogiri::HTML::Document.new)
           html = unescape_rjs(match)
-          matches ||= []
-          matches.concat HTML::Document.new(html).root.children.select { |n| n.tag? }
+          Nokogiri::HTML.fragment(html).element_children.each do |c|
+            matches << c
+          end
           ""
         end
     end
@@ -202,13 +203,15 @@ end
 
     if content_type && Mime::JS =~ content_type
       body = @response.body.dup
-      root = HTML::Node.new(nil)
+      root = Nokogiri::XML::NodeSet.new(Nokogiri::HTML::Document.new)
 
       while true
         next if body.sub!(RJS_STATEMENTS[:any]) do |match|
           html = unescape_rjs(match)
-          matches = HTML::Document.new(html).root.children.select { |n| n.tag? }
-          root.children.concat matches
+          matches = Nokogiri::HTML.fragment(html)
+          matches.element_children.each do |c|
+            root << c
+          end
           ""
         end
         break

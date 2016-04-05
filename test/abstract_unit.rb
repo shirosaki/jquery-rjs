@@ -3,16 +3,18 @@ $:.unshift(lib) unless $:.include?('lib') || $:.include?(lib)
 
 $:.unshift(File.dirname(__FILE__) + '/lib')
 
-require 'bundler'
-Bundler.setup
-Bundler.require
-
-require 'test/unit'
+require 'bundler/setup'
+require 'minitest/autorun'
+require 'mocha/mini_test'
 require 'active_support'
+require 'active_support/test_case'
 require 'action_controller'
 require 'action_view'
 require 'action_view/testing/resolvers'
+require 'rails'
+require 'responders'
 
+require 'jquery-rjs'
 require 'jquery-rjs/on_load_action_controller'
 require 'jquery-rjs/on_load_action_view'
 

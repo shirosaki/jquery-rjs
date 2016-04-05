@@ -26,6 +26,10 @@ module ActionView
       def jquery_ids(ids) #:nodoc:
         Array(ids).map{|id| jquery_id(id)}.join(',')
       end
+
+      def encode(element_id)
+        JsonLiteral === element_id.as_json ? element_id.as_json : ActiveSupport::JSON.encode(element_id.as_json)
+      end
           
       SCRIPTACULOUS_EFFECTS = {
         :appear => {:method => 'fade', :mode => 'show'},
@@ -73,7 +77,7 @@ module ActionView
       # You can change the behaviour with various options, see
       # http://script.aculo.us for more documentation.
       def visual_effect(name, element_id = false, js_options = {})
-        element = element_id ? ActiveSupport::JSON.encode(jquery_id((JavaScriptVariableProxy === element_id) ? element_id.as_json : element_id)) : "this"
+        element = element_id ? (JavaScriptVariableProxy === element_id) ?  encode(element_id.as_json) : encode(jquery_id(element_id)) : "this"
 
         if SCRIPTACULOUS_EFFECTS.has_key? name.to_sym
           effect = SCRIPTACULOUS_EFFECTS[name.to_sym]
@@ -178,6 +182,8 @@ module ActionView
       end
 
       def sortable_element_js(element_id, options = {}) #:nodoc:
+        element = element_id ? (JavaScriptVariableProxy === element_id) ?  encode(element_id) : encode(jquery_id(element_id)) : "this"
+
         #convert similar attributes
         options[:handle] = ".#{options[:handle]}" if options[:handle]
         if options[:tag] || options[:only]
@@ -185,7 +191,14 @@ module ActionView
           options[:items] << options.delete(:tag) if options[:tag]
           options[:items] << ".#{options.delete(:only)}" if options[:only]
         end
-        options[:connectWith] = options.delete(:containment).map {|x| "##{x}"} if options[:containment]
+        if options[:containment]
+          containment = options.delete(:containment)
+          if containment.respond_to? :map
+            options[:connectWith] = containment.map {|x| "##{x}"}
+          else
+            options[:connectWith] = "##{containment}"
+          end
+        end
         options[:containment] = options.delete(:container) if options[:container]
         options[:dropOnEmpty] = false unless options[:dropOnEmpty]
         options[:helper] = "'clone'" if options[:ghosting] == true
@@ -202,11 +215,12 @@ module ActionView
         options.delete(:ghosting)
         
         if options[:onUpdate] || options[:url]
+          element_key = element_id ? encode(element_id) : "null"
           if options[:format]
-            options[:with] ||= "#{JQUERY_VAR}(this).sortable('serialize',{key:'#{element_id}[]', expression:#{options[:format]}})"
+            options[:with] ||= "#{JQUERY_VAR}(this).sortable('serialize',{key:#{element_key}, expression:#{options[:format]}})"
             options.delete(:format)
           else
-            options[:with] ||= "#{JQUERY_VAR}(this).sortable('serialize',{key:'#{element_id}[]'})"
+            options[:with] ||= "#{JQUERY_VAR}(this).sortable('serialize',{key:#{element_key}})"
           end
           
           options[:onUpdate] ||= "function(){" + remote_function(options) + "}"
@@ -220,8 +234,8 @@ module ActionView
         end
         
         options[:connectWith] = array_or_string_for_javascript(options[:connectWith]) if options[:connectWith]
-        
-        %(#{JQUERY_VAR}('#{jquery_id(element_id)}').sortable(#{options_for_javascript(options)});)
+
+        %(#{JQUERY_VAR}(#{element}).sortable(#{options_for_javascript(options)});)
       end
 
       # Makes the element with the DOM ID specified by +element_id+ draggable.
@@ -236,7 +250,7 @@ module ActionView
       end
 
       def draggable_element_js(element_id, options = {}) #:nodoc:
-        %(new Draggable(#{ActiveSupport::JSON.encode(element_id)}, #{options_for_javascript(options)});)
+        %(new Draggable(#{encode(element_id)}, #{options_for_javascript(options)});)
       end
 
       # Makes the element with the DOM ID specified by +element_id+ receive
@@ -291,7 +305,7 @@ module ActionView
         # Confirmation happens during the onDrop callback, so it can be removed from the options
         options.delete(:confirm) if options[:confirm]
 
-        %(Droppables.add(#{ActiveSupport::JSON.encode(element_id)}, #{options_for_javascript(options)});)
+        %(Droppables.add(#{encode(element_id)}, #{options_for_javascript(options)});)
       end
 
       protected
